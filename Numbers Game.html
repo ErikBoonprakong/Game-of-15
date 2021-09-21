@@ -1,0 +1,207 @@
+<html>
+    <head>
+        <Title>Game of 15</Title>
+        <style> td{ border: 1px solid black; height: 100px; width:100px; text-align:center; vertical-align:middle;}</style>
+        <script language = javascript>
+            var bSquareX, bSquareY; // x, y coordinates of the blank square
+            var xClick, yClick; // x, y coordinates of the clicked square
+            var displayTable; // table displaying the game
+            var num = [];
+
+            function start()
+            {
+                num = [" ", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+                for (i = 0; i<num.length; ++i)
+                {
+                    num[i] = 0; // initialising the array
+                }
+                // putting the numbers into random order
+                for (i = 1; i<=15; ++i)
+                {
+                    var x = Math.floor(Math.random() * 15) ; 
+                    while (num[x] != 0)
+                    {
+                        var x = Math.floor(Math.random() * 15) + 1;
+                    }
+                    num[x] = i
+                    console.log(num)
+                }
+                displayTable = document.getElementById('htmlTable')
+                k=0
+                for(i=0; i<4; ++i)
+                {
+                    for(j = 0; j<4; ++j)
+                    {
+                        if (num[k] == "0")                                    //create a blank square
+                        {
+                            num[k] = " "
+                        }
+                        displayTable.rows[i].cells[j].innerHTML = num[k];     //fill out the table
+                        // saving the location of the blank square
+                        if (num[k] == " ")                                    
+                        {
+                            bSquareX = j;
+                            bSquareY = i;
+                        }
+                        k++;
+                    }
+                }
+            } // end function start()
+
+
+            function validateClicks(bSquareX, bSquareY)
+            {
+                var toRow, toCol;
+                //possible horizontal moves
+                switch (bSquareX)
+                {
+                    case 0:
+                    {
+                        toCol = [0, 1];
+                        break;
+                    }
+                    case 1:
+                    {
+                        toCol = [0, 1, 2];
+                        break;
+                    }
+                    case 2:
+                    {
+                        toCol = [1, 2, 3];
+                        break;
+                    }
+                    case 3:
+                    {
+                        toCol = [2, 3];
+                        break;
+                    }
+                }
+                if (toCol.indexOf(xClick) == -1)  // if attempting to move horizontally to an invalid column
+                {
+                    return false;
+                }
+
+                // possible verticle moves
+                switch(bSquareY)
+                {
+                    case 0:
+                    {
+                        toRow = [0, 1];
+                        break;
+                    }
+                    case 1: 
+                    {
+                        toRow = [0, 1, 2];
+                        break;
+                    }
+                    case 2: 
+                    {
+                        toRow = [1, 2, 3];
+                        break;
+                    }
+                    case 3: 
+                    {
+                        toRow = [2, 3];
+                        break;
+                    }
+                }
+                if (toRow.indexOf(yClick) == -1)  // if attempting to move to an invalid row
+                {
+                    return false;
+                }
+
+                //checking for diagonal moves (not allowed)
+                if (xClick != bSquareX && (yClick != bSquareY))
+                {
+                    return false;
+                }
+                else if (yClick != bSquareY && (xClick != bSquareX))
+                {
+                    return false;
+                }
+                return true;
+            }
+            
+            function clickSquare()
+            {
+                xClick = this.event.target.cellIndex;
+                yClick = this.event.target.parentNode.rowIndex;
+                console.log('origin of blank square:', bSquareX, bSquareY)
+                console.log('origin of clicked square:', xClick, yClick);
+                console.log('Table contains:', num)
+                var clickContents = num[parseInt(xClick + (4*yClick))]  // working out the number in the clicked square
+                console.log('clicked square contains:', clickContents)
+                if (validateClicks(bSquareX, bSquareY) == true)
+                {
+                displayTable.rows[bSquareY].cells[bSquareX].innerHTML = clickContents;  // swapping the blank square with the clicked square
+                displayTable.rows[yClick].cells[xClick].innerHTML = " ";
+                num[parseInt(bSquareX + (4*bSquareY))] = num[parseInt(xClick + (4*yClick))]  // updating the array that fills the table according to which squares have swapped places
+                num[parseInt(xClick + (4*yClick))] = " "
+                bSquareY = yClick;
+                bSquareX = xClick;
+                }
+                //Checking to see if completed
+                var completed = true;
+                j = 1;
+                for (i = 0; i <= 16; ++i)
+                {
+                    if (parseInt(num[i]) != j)
+                    {
+                        completed = false;
+                        break;
+                    }
+                    j++;
+                    console.log('j', j, "cell", parseInt(num[i]));
+                    if (completed == false || j > 15)
+                    {
+                        break;
+                    }
+                }
+                if (j == 16)
+                {
+                    document.getElementById('winnerWinnerChickenDinner').innerHTML = "<h2>Well Done! You solved the puzzle!</h2> <button type='button' value='Play Again' onclick='window.location.reload();''>Play Again</button>"
+                }
+            }
+
+
+        </script>
+    </head>
+    <body>
+        <h1>Game of 15</h1>
+        <p>
+            The aim of this game is to reorder the 15 numbers ascendingly, with the blank space being in the bottom right corner.<br> Click any square adjacent to the blank square to move it into the empty space.
+        </p>
+        <!--- <table id = "game" border = "1"></table> -->
+        <button type="button" onclick="start()">Let's Play!</button>
+        <p id = winnerWinnerChickenDinner></p>
+        <p></p>
+        <table id='htmlTable' onclick='clickSquare()'>
+            <tbody>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </body>
+</html>
